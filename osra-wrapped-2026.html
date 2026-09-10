@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>OSRA WRAPPED 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,450;0,9..144,600;0,9..144,700;1,9..144,450;1,9..144,600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --navy-deep:#081522;
+  --navy-mid:#0d2436;
+  --ocean:#153b58;
+  --ocean-light:#1f5379;
+  --gold:#cda24e;
+  --gold-soft:#e6c883;
+  --coral:#ff6f52;
+  --cream:#f4ecdb;
+  --cream-dim:#cfc4ab;
+  --paper:#ece2cb;
+  --ink:#1c140d;
+  --line: rgba(244,236,219,0.14);
+  --serif: 'Fraunces', serif;
+  --sans: 'Space Grotesk', sans-serif;
+  --ease: cubic-bezier(.22,.9,.32,1);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html,body{height:100%;}
+body{
+  font-family:var(--sans);
+  background:#04090f;
+  color:var(--cream);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--coral); color:var(--navy-deep);}
+a{color:inherit;}
+button{font-family:inherit; border:none; background:none; color:inherit; cursor:pointer;}
+
+/* subtle grain overlay across whole experience */
+.grain{
+  position:fixed; inset:0; z-index:500; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ============ DEVICE FRAME (desktop) ============ */
+.stage-outer{
+  min-height:100%;
+  display:flex; justify-content:center;
+  background:
+    radial-gradient(ellipse at 50% 0%, #0c2033 0%, #04090f 62%);
+}
+.frame{
+  position:relative;
+  width:100%;
+  max-width:480px;
+  min-height:100vh;
+  background:var(--navy-deep);
+  overflow:hidden;
+}
+@media(min-width:600px){
+  .stage-outer{ padding:36px 0; }
+  .frame{
+    min-height:calc(100vh - 72px);
+    border-radius:28px;
+    box-shadow:0 40px 90px -20px rgba(0,0,0,.7), 0 0 0 1px rgba(244,236,219,.06), 0 0 0 8px #01060b;
+  }
+}
+
+/* ============ LOADER ============ */
+#loader{
+  position:fixed; inset:0; z-index:1000;
+  background:var(--navy-deep);
+  display:flex; align-items:center; justify-content:center;
+  flex-direction:column;
+  transition:opacity 1s var(--ease), visibility 1s;
+}
+#loader.hidden{opacity:0; visibility:hidden; pointer-events:none;}
+.loader-line{
+  font-family:var(--serif); font-weight:450; font-style:italic;
+  font-size:clamp(20px,5.5vw,26px);
+  color:var(--cream-dim);
+  opacity:0;
+  position:absolute;
+  transition:opacity .6s ease;
+  letter-spacing:.01em;
+}
+.loader-line.show{opacity:1;}
+.loader-mark{
+  width:56px; height:56px;
+  opacity:0;
+  transition:opacity .8s ease, transform .8s ease;
+  transform:scale(.85);
+}
+.loader-mark.show{opacity:1; transform:scale(1);}
+.loader-dot-row{
+  position:absolute; bottom:56px;
+  display:flex; gap:6px;
+}
+.loader-dot-row span{
+  width:5px; height:5px; border-radius:50%; background:var(--gold);
+  opacity:.25; animation:pulse 1.2s ease-in-out infinite;
+}
+.loader-dot-row span:nth-child(2){animation-delay:.15s;}
+.loader-dot-row span:nth-child(3){animation-delay:.3s;}
+@keyframes pulse{0%,100%{opacity:.2; transform:scale(1);}50%{opacity:1; transform:scale(1.3);}}
+
+/* ============ INTRO ============ */
+#intro{
+  position:fixed; inset:0; z-index:900;
+  background:
+    radial-gradient(circle at 50% 15%, rgba(205,162,78,.14), transparent 55%),
+    linear-gradient(180deg, var(--navy-deep) 0%, var(--navy-mid) 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:0 32px;
+  opacity:0; visibility:hidden; transition:opacity 1.1s var(--ease), visibility 1.1s;
+}
+#intro.show{opacity:1; visibility:visible;}
+#intro.leaving{opacity:0; transform:scale(1.04); transition:opacity .7s ease, transform .7s ease;}
+.intro-eyebrow{
+  font-size:11px; letter-spacing:.22em; color:var(--gold-soft); text-transform:uppercase;
+  margin-bottom:18px; opacity:.85;
+}
+.intro-title{
+  font-family:var(--serif); font-weight:600; line-height:.92;
+  font-size:clamp(48px,15vw,72px);
+  background:linear-gradient(180deg, var(--cream) 30%, var(--gold-soft) 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.intro-year{
+  font-family:var(--serif); font-style:italic; font-weight:450;
+  font-size:clamp(48px,15vw,72px); color:var(--coral); line-height:1;
+  margin-bottom:20px;
+}
+.intro-tag{ font-size:15px; color:var(--cream-dim); margin-bottom:34px;}
+.intro-name{
+  font-family:var(--serif); font-weight:700; font-size:clamp(30px,9vw,42px);
+  letter-spacing:.02em; margin-bottom:44px;
+}
+.cta{
+  display:inline-flex; align-items:center; gap:10px;
+  padding:15px 28px; border-radius:100px;
+  background:var(--coral); color:#1a0d06; font-weight:600; font-size:14px;
+  letter-spacing:.03em;
+  box-shadow:0 14px 30px -10px rgba(255,111,82,.55);
+  transition:transform .35s var(--ease), box-shadow .35s var(--ease);
+}
+.cta:active{transform:scale(.96);}
+.cta svg{width:16px; height:16px;}
+
+/* ============ SCROLL CONTAINER ============ */
+#experience{
+  height:100vh; overflow-y:scroll; scroll-snap-type:y mandatory;
+  scrollbar-width:none; visibility:hidden;
+}
+#experience.ready{visibility:visible;}
+#experience::-webkit-scrollbar{display:none;}
+
+.chapter{
+  position:relative;
+  min-height:100vh; min-height:100dvh;
+  scroll-snap-align:start; scroll-snap-stop:always;
+  display:flex; flex-direction:column;
+  padding:28px 26px 40px;
+  overflow:hidden;
+}
+
+/* ---- shared bits ---- */
+.coords{
+  font-size:10px; letter-spacing:.14em; color:var(--gold-soft); opacity:.55; font-variant-numeric:tabular-nums;
+}
+.topbar{
+  display:flex; justify-content:space-between; align-items:center;
+  position:relative; z-index:20;
+}
+.progress-dots{ display:flex; gap:7px; }
+.progress-dots span{
+  width:6px; height:6px; border-radius:50%; background:rgba(244,236,219,.28);
+  transition:background .4s ease, transform .4s ease;
+}
+.progress-dots span.active{ background:var(--gold); transform:scale(1.35); }
+.chapter-index{ font-size:11px; letter-spacing:.12em; color:var(--cream-dim); }
+
+.compass{
+  position:absolute; width:130px; height:130px; opacity:.14; pointer-events:none;
+}
+.wave-line{ position:absolute; left:0; right:0; opacity:.5; pointer-events:none; }
+
+.reveal{ opacity:0; transform:translateY(22px); transition:opacity .8s var(--ease), transform .8s var(--ease); }
+.chapter.active .reveal{ opacity:1; transform:translateY(0); }
+.reveal.d1{transition-delay:.08s;}
+.reveal.d2{transition-delay:.2s;}
+.reveal.d3{transition-delay:.34s;}
+.reveal.d4{transition-delay:.48s;}
+.reveal.d5{transition-delay:.6s;}
+
+.scroll-hint{
+  margin-top:auto; display:flex; align-items:center; gap:8px;
+  font-size:11px; letter-spacing:.1em; color:var(--cream-dim); text-transform:uppercase;
+  opacity:.75;
+}
+.scroll-hint .arrow{ animation:bob 1.8s ease-in-out infinite; }
+@keyframes bob{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(5px);} }
+
+/* ============ CH1 — COVER ============ */
+#ch1{
+  background:
+    radial-gradient(120% 70% at 50% -10%, rgba(205,162,78,.22), transparent 60%),
+    linear-gradient(200deg, var(--navy-mid) 0%, var(--navy-deep) 55%, #050d16 100%);
+  justify-content:space-between;
+}
+.ch1-waves{
+  position:absolute; left:-10%; right:-10%; bottom:-6%; height:46%;
+  opacity:.5;
+}
+.ch1-mid{ flex:1; display:flex; flex-direction:column; justify-content:center; align-items:flex-start; z-index:5; }
+.eyebrow-line{
+  display:flex; align-items:center; gap:10px; margin-bottom:22px; color:var(--gold-soft);
+  font-size:11px; letter-spacing:.18em; text-transform:uppercase; opacity:.8;
+}
+.eyebrow-line::before{ content:''; width:26px; height:1px; background:var(--gold-soft); opacity:.7; }
+.h-osra{
+  font-family:var(--serif); font-weight:700; line-height:.9;
+  font-size:clamp(52px,15.5vw,80px);
+}
+.h-year{
+  font-family:var(--serif); font-style:italic; font-weight:450;
+  font-size:clamp(52px,15.5vw,80px); color:var(--coral); line-height:1; margin-bottom:22px;
+}
+.h-tag{ font-size:16px; color:var(--cream-dim); margin-bottom:30px; max-width:280px; }
+.h-name{
+  font-family:var(--serif); font-weight:700; letter-spacing:.01em;
+  font-size:clamp(28px,8.5vw,38px); position:relative; padding-left:16px;
+  border-left:2px solid var(--coral);
+}
+.ch1-meta{ font-size:12px; color:var(--cream-dim); margin-top:26px; letter-spacing:.03em; }
+
+/* ============ CH2 — PERSONALITY ============ */
+#ch2{
+  background:linear-gradient(200deg, #12324a 0%, var(--navy-deep) 70%);
+  justify-content:flex-start;
+}
+.section-head{ font-size:12px; letter-spacing:.16em; text-transform:uppercase; color:var(--gold-soft); margin:26px 0 6px; }
+.section-title{
+  font-family:var(--serif); font-weight:700; font-size:clamp(30px,8.6vw,40px); line-height:1.02; margin-bottom:22px;
+}
+.personality-symbol{
+  width:64px; height:64px; margin-bottom:8px;
+}
+.personality-name{
+  font-family:var(--serif); font-style:italic; font-weight:600;
+  font-size:clamp(38px,11vw,54px); color:var(--coral); line-height:1; margin-bottom:14px;
+}
+.personality-desc{ font-size:15px; line-height:1.55; color:var(--cream-dim); max-width:320px; margin-bottom:30px; }
+.stat-row{ display:flex; flex-direction:column; gap:18px; }
+.stat{ }
+.stat-top{ display:flex; justify-content:space-between; font-size:12px; letter-spacing:.1em; text-transform:uppercase; margin-bottom:8px; color:var(--cream-dim); }
+.stat-value{ font-family:var(--serif); font-weight:600; color:var(--cream); }
+.bar-track{ height:7px; border-radius:5px; background:rgba(244,236,219,.1); overflow:hidden; }
+.bar-fill{ height:100%; border-radius:5px; width:0%; background:linear-gradient(90deg, var(--gold) 0%, var(--coral) 100%); transition:width 1.4s var(--ease); }
+
+/* ============ CH3 — FAVORITE ============ */
+#ch3{ background:linear-gradient(200deg, var(--navy-mid) 0%, #0a1c2c 65%); }
+.favorite-big{ display:flex; align-items:baseline; gap:14px; margin:8px 0 4px; }
+.favorite-emoji{ font-size:44px; }
+.favorite-word{ font-family:var(--serif); font-weight:700; font-size:clamp(34px,10vw,46px); }
+.favorite-sub{ font-size:14px; color:var(--cream-dim); margin-bottom:26px; }
+.card-stack{ display:flex; flex-direction:column; gap:12px; }
+.fav-card{
+  border:1px solid var(--line); border-radius:16px; padding:16px 18px;
+  background:linear-gradient(160deg, rgba(244,236,219,.05), rgba(244,236,219,.015));
+  opacity:0; transform:translateX(24px);
+  transition:opacity .7s var(--ease), transform .7s var(--ease);
+}
+.chapter.active .fav-card{ opacity:1; transform:translateX(0); }
+.fav-card:nth-child(1){transition-delay:.15s;}
+.fav-card:nth-child(2){transition-delay:.3s;}
+.fav-card:nth-child(3){transition-delay:.45s;}
+.fav-card-label{ font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:6px; }
+.fav-card-value{ font-family:var(--serif); font-weight:600; font-size:19px; }
+
+/* ============ CH4 — DAVID ============ */
+#ch4{
+  background:
+    radial-gradient(90% 60% at 50% 0%, rgba(255,111,82,.14), transparent 60%),
+    linear-gradient(200deg, #0c1e2f 0%, #060f19 70%);
+  align-items:center; text-align:center;
+}
+.david-pre{ font-size:13px; color:var(--cream-dim); letter-spacing:.08em; margin-bottom:10px; }
+.david-name{
+  font-family:var(--serif); font-weight:700; font-style:italic;
+  font-size:clamp(52px,16vw,74px); color:var(--gold-soft); line-height:1; margin-bottom:16px;
+  text-shadow:0 0 60px rgba(205,162,78,.35);
+}
+.david-roles{ display:flex; flex-direction:column; gap:2px; margin-bottom:30px; }
+.david-roles span{ font-size:12px; letter-spacing:.2em; text-transform:uppercase; color:var(--cream-dim); }
+.david-glyph{ width:76px; height:76px; margin:6px auto 30px; opacity:.9; }
+.david-why{ font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--coral); margin-bottom:12px; }
+.david-copy{ font-size:16px; line-height:1.6; color:var(--cream-dim); max-width:280px; margin:0 auto 30px; }
+.trait-row{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.trait-pill{
+  padding:9px 18px; border-radius:100px; border:1px solid var(--line);
+  font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--cream);
+}
+
+/* ============ CH5 — NOTICED ============ */
+#ch5{
+  background:linear-gradient(180deg, var(--paper) 0%, #e3d6b8 100%);
+  color:var(--ink); justify-content:center;
+}
+#ch5 .section-head{ color:#8a6a2e; }
+#ch5 .coords, #ch5 .chapter-index{ color:rgba(28,20,13,.55); }
+#ch5 .progress-dots span{ background:rgba(28,20,13,.2); }
+#ch5 .progress-dots span.active{ background:#a5762c; }
+.noticed-quote{
+  font-family:var(--serif); font-style:italic; font-weight:450;
+  font-size:clamp(26px,8vw,34px); line-height:1.25; margin:18px 0 22px;
+  position:relative;
+}
+.polaroid{
+  width:100%; max-width:280px; background:#fffaf0; padding:10px 10px 40px;
+  border-radius:2px; box-shadow:0 18px 30px -12px rgba(0,0,0,.35); transform:rotate(-2deg);
+  margin:6px 0 24px;
+}
+.polaroid .ph{
+  width:100%; aspect-ratio:4/5; border-radius:1px;
+  background:linear-gradient(145deg,#c9b78f,#9a875f);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--serif); font-style:italic; color:#fffaf0; font-size:13px; text-align:center; padding:20px;
+}
+.polaroid figcaption{
+  font-family:var(--serif); font-style:italic; font-size:13px; text-align:center; margin-top:10px; color:#5b4a2c;
+}
+.noticed-small{ font-size:14px; color:rgba(28,20,13,.65); max-width:280px; }
+
+/* ============ CH6 — STORY ============ */
+#ch6{
+  background:
+    radial-gradient(140% 60% at 50% 100%, rgba(205,162,78,.25), transparent 60%),
+    linear-gradient(200deg, #0a1c2c 0%, #050d16 60%);
+  justify-content:space-between; text-align:center; align-items:center;
+}
+.story-lead{ font-family:var(--serif); font-weight:700; font-size:clamp(26px,8.4vw,34px); line-height:1.15; margin:10px 0 14px; }
+.story-sub{ font-size:14px; color:var(--cream-dim); max-width:280px; margin-bottom:20px; }
+.story-place{
+  font-family:var(--serif); font-weight:700; font-size:clamp(30px,9.5vw,42px); line-height:1.05;
+}
+.story-place em{ color:var(--coral); font-style:italic; }
+.story-thanks{ font-size:15px; color:var(--cream-dim); margin:22px 0 6px; }
+.story-next{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-soft); margin-bottom:26px; }
+.story-actions{ display:flex; flex-direction:column; gap:12px; width:100%; max-width:280px; }
+.btn-outline{
+  border:1px solid var(--line); border-radius:100px; padding:13px 22px;
+  font-size:13px; letter-spacing:.05em; display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:background .3s ease, transform .3s ease;
+}
+.btn-outline:active{ transform:scale(.97); background:rgba(244,236,219,.06); }
+.btn-solid{
+  background:var(--coral); color:#1a0d06; border-radius:100px; padding:13px 22px; font-weight:600;
+  font-size:13px; letter-spacing:.03em; display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:transform .3s ease;
+}
+.btn-solid:active{ transform:scale(.97); }
+
+/* ============ FLOATING UI ============ */
+.float-ui{
+  position:fixed; right:18px; bottom:22px; z-index:200;
+  display:flex; flex-direction:column; gap:10px;
+}
+@media(min-width:600px){ .float-ui{ right:calc(50% - 240px + 18px); } }
+.float-btn{
+  width:38px; height:38px; border-radius:50%;
+  background:rgba(8,21,34,.6); border:1px solid rgba(244,236,219,.18);
+  backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  transition:background .3s ease, transform .3s ease;
+}
+.float-btn:active{ transform:scale(.92); }
+.float-btn svg{ width:16px; height:16px; }
+
+.toast{
+  position:fixed; left:50%; bottom:26px; transform:translate(-50%,20px);
+  background:var(--cream); color:var(--ink); padding:10px 18px; border-radius:100px;
+  font-size:12px; letter-spacing:.03em; z-index:600; opacity:0; pointer-events:none;
+  transition:opacity .35s ease, transform .35s ease;
+}
+.toast.show{ opacity:1; transform:translate(-50%,0); }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; transition-duration:.001ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<!-- ============ LOADER ============ -->
+<div id="loader">
+  <div class="loader-line" id="ll1">Preparing your year&nbsp;&hellip;</div>
+  <div class="loader-line" id="ll2">Your memories.</div>
+  <div class="loader-line" id="ll3">Your moments.</div>
+  <div class="loader-line" id="ll4">Your story.</div>
+  <svg class="loader-mark" id="llMark" viewBox="0 0 64 64" fill="none">
+    <circle cx="32" cy="32" r="30" stroke="#cda24e" stroke-width="1"/>
+    <path d="M32 10 L32 54 M10 32 L54 32" stroke="#cda24e" stroke-width="1"/>
+    <path d="M32 16 L38 32 L32 48 L26 32 Z" fill="#ff6f52"/>
+  </svg>
+  <div class="loader-dot-row"><span></span><span></span><span></span></div>
+</div>
+
+<!-- ============ INTRO ============ -->
+<div id="intro">
+  <div class="intro-eyebrow">Osra &middot; Youth Journey</div>
+  <div class="intro-title">OSRA WRAPPED</div>
+  <div class="intro-year">2026</div>
+  <div class="intro-tag">Your year with us.</div>
+  <div class="intro-name" id="introName">ANDREW</div>
+  <button class="cta" id="startBtn">
+    START THE JOURNEY
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </button>
+</div>
+
+<div class="stage-outer">
+<div class="frame">
+
+<div id="experience">
+
+  <!-- ================= CHAPTER 1 — COVER ================= -->
+  <section class="chapter" id="ch1" data-index="0">
+    <div class="topbar">
+      <span class="coords" id="coordTag">30.0444&deg;N &middot; 31.2357&deg;E</span>
+      <span class="chapter-index">01 / 06</span>
+    </div>
+    <svg class="ch1-waves wave-line" viewBox="0 0 400 120" preserveAspectRatio="none">
+      <path d="M0 60 Q50 20 100 60 T200 60 T300 60 T400 60 V120 H0 Z" fill="#153b58" opacity=".55"/>
+      <path d="M0 80 Q50 45 100 80 T200 80 T300 80 T400 80 V120 H0 Z" fill="#0d2436" opacity=".7"/>
+    </svg>
+    <div class="ch1-mid">
+      <div class="eyebrow-line reveal">6 chapters &middot; countless memories</div>
+      <div class="h-osra reveal d1">OSRA WRAPPED</div>
+      <div class="h-year reveal d2">2026</div>
+      <div class="h-tag reveal d3">Your year with us.</div>
+      <div class="h-name reveal d4" id="coverName">ANDREW</div>
+    </div>
+    <div class="scroll-hint reveal d5">
+      <span>Scroll to begin</span>
+      <span class="arrow">&darr;</span>
+    </div>
+  </section>
+
+  <!-- ================= CHAPTER 2 — PERSONALITY ================= -->
+  <section class="chapter" id="ch2" data-index="1">
+    <div class="topbar">
+      <div class="progress-dots" data-dots></div>
+      <span class="chapter-index">02 / 06</span>
+    </div>
+    <div class="section-head reveal">Your Osra personality</div>
+    <div class="section-title reveal d1">Who you were<br>this year.</div>
+
+    <svg class="personality-symbol reveal d2" viewBox="0 0 64 64" fill="none">
+      <path d="M32 6 L52 20 L45 46 L19 46 L12 20 Z" stroke="#cda24e" stroke-width="1.3"/>
+      <circle cx="32" cy="30" r="6" fill="#ff6f52"/>
+    </svg>
+    <div class="personality-name reveal d3" id="personalityName">The Adventurer</div>
+    <div class="personality-desc reveal d4" id="personalityDesc">You're always ready to try something new. You bring energy wherever you go.</div>
+
+    <div class="stat-row reveal d5" id="statRow">
+      <div class="stat">
+        <div class="stat-top"><span>Energy</span><span class="stat-value" data-stat-value>0%</span></div>
+        <div class="bar-track"><div class="bar-fill" data-fill data-target="94"></div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-top"><span>Team Spirit</span><span class="stat-value" data-stat-value>0%</span></div>
+        <div class="bar-track"><div class="bar-fill" data-fill data-target="96"></div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-top"><span>Chaos</span><span class="stat-value" data-stat-value>0%</span></div>
+        <div class="bar-track"><div class="bar-fill" data-fill data-target="71"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CHAPTER 3 — FAVORITE ================= -->
+  <section class="chapter" id="ch3" data-index="2">
+    <div class="topbar">
+      <div class="progress-dots" data-dots></div>
+      <span class="chapter-index">03 / 06</span>
+    </div>
+    <div class="section-head reveal">Your favorite</div>
+    <div class="section-title reveal d1">This is your thing.</div>
+    <div class="favorite-big reveal d2"><span class="favorite-emoji">&#9917;</span><span class="favorite-word" id="favSport">Football</span></div>
+    <div class="favorite-sub reveal d2">Your most-loved sport.</div>
+
+    <div class="card-stack">
+      <div class="fav-card">
+        <div class="fav-card-label">Favorite activity</div>
+        <div class="fav-card-value" id="favActivity">Summer Festival</div>
+      </div>
+      <div class="fav-card">
+        <div class="fav-card-label">Most memorable</div>
+        <div class="fav-card-value" id="favMemorable">Beach Day</div>
+      </div>
+      <div class="fav-card">
+        <div class="fav-card-label">Most played</div>
+        <div class="fav-card-value" id="favPlayed">Football</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CHAPTER 4 — DAVID ================= -->
+  <section class="chapter" id="ch4" data-index="3">
+    <div class="topbar">
+      <div class="progress-dots" data-dots></div>
+      <span class="chapter-index">04 / 06</span>
+    </div>
+    <div style="margin-top:8vh;">
+      <div class="david-pre reveal">You're a lot like&hellip;</div>
+      <div class="david-name reveal d1" id="bibleCharacter">David</div>
+      <div class="david-roles reveal d2">
+        <span>The Shepherd</span><span>The Worshipper</span><span>The Warrior</span>
+      </div>
+      <svg class="david-glyph reveal d3" viewBox="0 0 76 76" fill="none">
+        <circle cx="38" cy="38" r="35" stroke="#cda24e" stroke-width="1"/>
+        <path d="M38 14 L44 34 L38 62 L32 34 Z" fill="#cda24e" opacity=".8"/>
+        <circle cx="38" cy="30" r="4" fill="#ff6f52"/>
+      </svg>
+      <div class="david-why reveal d4">Why?</div>
+      <div class="david-copy reveal d4" id="bibleWhy">Like David, you bring courage, heart and a little bit of fire wherever you go.</div>
+      <div class="trait-row reveal d5" id="traitRow">
+        <span class="trait-pill">Courage</span><span class="trait-pill">Heart</span><span class="trait-pill">Faith</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= CHAPTER 5 — NOTICED ================= -->
+  <section class="chapter" id="ch5" data-index="4">
+    <div class="topbar">
+      <div class="progress-dots" data-dots></div>
+      <span class="chapter-index">05 / 06</span>
+    </div>
+    <div class="section-head reveal">Something we noticed</div>
+    <div class="noticed-quote reveal d1" id="noticedQuote">&ldquo;You never miss a chance to make people laugh.&rdquo;</div>
+    <figure class="polaroid reveal d2">
+      <div class="ph">{{MEMORY_PHOTO}}</div>
+      <figcaption>this year, with all of us</figcaption>
+    </figure>
+    <div class="noticed-small reveal d3">We noticed. And we appreciate it.</div>
+  </section>
+
+  <!-- ================= CHAPTER 6 — STORY ================= -->
+  <section class="chapter" id="ch6" data-index="5">
+    <div class="topbar">
+      <div class="progress-dots" data-dots></div>
+      <span class="chapter-index">06 / 06</span>
+    </div>
+    <svg class="compass" style="top:70px; right:-10px;" viewBox="0 0 100 100" fill="none">
+      <circle cx="50" cy="50" r="46" stroke="#cda24e" stroke-width="1"/>
+      <path d="M50 8 L56 50 L50 92 L44 50 Z" fill="#cda24e"/>
+      <path d="M8 50 L50 44 L92 50 L50 56 Z" fill="#cda24e" opacity=".5"/>
+    </svg>
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:5;">
+      <div class="section-head reveal" style="margin-top:0;">And that's your story.</div>
+      <div class="story-lead reveal d1">Out of all the numbers, there's one thing we can't measure.</div>
+      <div class="story-place reveal d2">Your place<br><em>in our family.</em> &#10084;&#65039;</div>
+      <div class="story-thanks reveal d3">Thank you for being part of our story this year<span id="storyName">, Andrew</span>.</div>
+      <div class="story-next reveal d3">See you in Osra Wrapped 2027</div>
+    </div>
+    <div class="story-actions reveal d4">
+      <button class="btn-solid" id="shareBtn">
+        SHARE YOUR WRAPPED
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.6l6.8-3.8M8.6 13.4l6.8 3.8"/></svg>
+      </button>
+      <button class="btn-outline" id="replayBtn">
+        REPLAY YOUR YEAR
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/></svg>
+      </button>
+    </div>
+  </section>
+
+</div><!-- /experience -->
+</div><!-- /frame -->
+</div><!-- /stage-outer -->
+
+<div class="float-ui">
+  <button class="float-btn" id="soundBtn" title="Toggle sound">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path id="soundWaves" d="M17 8a6 6 0 0 1 0 8"/></svg>
+  </button>
+  <button class="float-btn" id="backBtn" title="Previous chapter">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+</div>
+
+<div class="toast" id="toast">Link copied &mdash; share your wrapped</div>
+
+<script>
+/* ============================================================
+   OSRA WRAPPED — CONTENT CONFIG
+   Swap these values (or feed them from a backend) to generate
+   a unique Wrapped for every youth member.
+============================================================ */
+const OSRA_CONFIG = {
+  NAME: "Andrew",
+  PERSONALITY: "The Adventurer",
+  PERSONALITY_DESC: "You're always ready to try something new. You bring energy wherever you go.",
+  ENERGY_SCORE: 94,
+  TEAM_SPIRIT_SCORE: 96,
+  CHAOS_SCORE: 71,
+  FAVORITE_SPORT: "Football",
+  FAVORITE_ACTIVITY: "Summer Festival",
+  MOST_MEMORABLE: "Beach Day",
+  MOST_PLAYED: "Football",
+  BIBLE_CHARACTER: "David",
+  BIBLE_TRAITS: ["Courage", "Heart", "Faith"],
+  SOMETHING_WE_NOTICED: "You never miss a chance to make people laugh.",
+  ATTENDANCE: "38 Fridays"
+};
+
+function applyConfig(c){
+  document.getElementById('introName').textContent = c.NAME.toUpperCase();
+  document.getElementById('coverName').textContent = c.NAME.toUpperCase();
+  document.getElementById('personalityName').textContent = c.PERSONALITY;
+  document.getElementById('personalityDesc').textContent = c.PERSONALITY_DESC;
+  document.getElementById('favSport').textContent = c.FAVORITE_SPORT;
+  document.getElementById('favActivity').textContent = c.FAVORITE_ACTIVITY;
+  document.getElementById('favMemorable').textContent = c.MOST_MEMORABLE;
+  document.getElementById('favPlayed').textContent = c.MOST_PLAYED;
+  document.getElementById('bibleCharacter').textContent = c.BIBLE_CHARACTER;
+  document.getElementById('noticedQuote').innerHTML = '&ldquo;' + c.SOMETHING_WE_NOTICED + '&rdquo;';
+  document.getElementById('storyName').textContent = ', ' + c.NAME;
+  const fills = document.querySelectorAll('[data-fill]');
+  fills[0].dataset.target = c.ENERGY_SCORE;
+  fills[1].dataset.target = c.TEAM_SPIRIT_SCORE;
+  fills[2].dataset.target = c.CHAOS_SCORE;
+}
+applyConfig(OSRA_CONFIG);
+
+/* ============ LOADER SEQUENCE ============ */
+const loader = document.getElementById('loader');
+const intro = document.getElementById('intro');
+const lines = ['ll1','ll2','ll3','ll4'].map(id=>document.getElementById(id));
+const mark = document.getElementById('llMark');
+
+function runLoader(){
+  loader.classList.remove('hidden');
+  lines.forEach(l=>l.classList.remove('show'));
+  mark.classList.remove('show');
+  let t = 250;
+  lines.forEach((line,i)=>{
+    setTimeout(()=>{
+      lines.forEach(l=>l.classList.remove('show'));
+      line.classList.add('show');
+    }, t);
+    t += 700;
+  });
+  setTimeout(()=>{
+    lines.forEach(l=>l.classList.remove('show'));
+    mark.classList.add('show');
+  }, t);
+  t += 900;
+  setTimeout(()=>{
+    loader.classList.add('hidden');
+    intro.classList.add('show');
+  }, t);
+}
+runLoader();
+
+/* ============ INTRO -> EXPERIENCE ============ */
+const experience = document.getElementById('experience');
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  intro.classList.add('leaving');
+  setTimeout(()=>{
+    intro.classList.remove('show');
+    intro.classList.remove('leaving');
+    experience.classList.add('ready');
+    experience.scrollTop = 0;
+  }, 650);
+});
+
+/* ============ PROGRESS DOTS ============ */
+const chapters = Array.from(document.querySelectorAll('.chapter'));
+const dotHolders = document.querySelectorAll('[data-dots]');
+function buildDots(){
+  dotHolders.forEach(holder=>{
+    holder.innerHTML = '';
+    chapters.forEach((ch,i)=>{
+      const d = document.createElement('span');
+      if(i===0) d.classList.add('active');
+      holder.appendChild(d);
+    });
+  });
+}
+buildDots();
+function setActiveDot(idx){
+  dotHolders.forEach(holder=>{
+    Array.from(holder.children).forEach((d,i)=> d.classList.toggle('active', i===idx));
+  });
+}
+
+/* ============ INTERSECTION OBSERVER ============ */
+let statAnimated = false;
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    const ch = entry.target;
+    const idx = parseInt(ch.dataset.index,10);
+    if(entry.isIntersecting && entry.intersectionRatio > 0.55){
+      ch.classList.add('active');
+      setActiveDot(idx);
+      if(ch.id === 'ch2' && !statAnimated){
+        statAnimated = true;
+        animateStats();
+      }
+    }
+  });
+}, { root: experience, threshold: [0.55] });
+chapters.forEach(ch=>io.observe(ch));
+
+function animateStats(){
+  document.querySelectorAll('[data-fill]').forEach(fill=>{
+    const target = parseInt(fill.dataset.target,10);
+    const valueEl = fill.closest('.stat').querySelector('[data-stat-value]');
+    requestAnimationFrame(()=>{ fill.style.width = target + '%'; });
+    const dur = 1200, start = performance.now();
+    function step(now){
+      const p = Math.min(1, (now-start)/dur);
+      const eased = 1 - Math.pow(1-p, 3);
+      valueEl.textContent = Math.round(eased*target) + '%';
+      if(p<1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+/* ============ BACK BUTTON ============ */
+document.getElementById('backBtn').addEventListener('click', ()=>{
+  const current = chapters.findIndex(ch=>ch.classList.contains('active'));
+  const target = Math.max(0, current-1);
+  chapters[target].scrollIntoView({behavior:'smooth'});
+});
+
+/* ============ SOUND TOGGLE ============ */
+let soundOn = false;
+document.getElementById('soundBtn').addEventListener('click', function(){
+  soundOn = !soundOn;
+  this.style.background = soundOn ? 'rgba(205,162,78,.35)' : 'rgba(8,21,34,.6)';
+  showToast(soundOn ? 'Sound on' : 'Sound off');
+});
+
+/* ============ SHARE / REPLAY ============ */
+document.getElementById('shareBtn').addEventListener('click', async ()=>{
+  const text = OSRA_CONFIG.NAME + "'s OSRA Wrapped 2026 \u2014 " + OSRA_CONFIG.PERSONALITY;
+  if(navigator.share){
+    try{ await navigator.share({ title:'OSRA Wrapped 2026', text }); }catch(e){}
+  } else {
+    try{ await navigator.clipboard.writeText(text); }catch(e){}
+    showToast('Copied \u2014 share your wrapped');
+  }
+});
+document.getElementById('replayBtn').addEventListener('click', ()=>{
+  chapters.forEach(ch=>ch.classList.remove('active'));
+  statAnimated = false;
+  document.querySelectorAll('[data-fill]').forEach(f=>f.style.width='0%');
+  document.querySelectorAll('[data-stat-value]').forEach(v=>v.textContent='0%');
+  experience.scrollTop = 0;
+  chapters[0].classList.add('active');
+  setActiveDot(0);
+});
+
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  if(msg) t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 1800);
+}
+</script>
+</body>
+</html>
